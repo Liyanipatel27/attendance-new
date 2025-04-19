@@ -1,0 +1,129 @@
+/* Dashboard.css */
+.dashboard-container {
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.dashboard-header {
+    margin-bottom: 60px;
+    text-align: center;
+}
+
+.dashboard-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #343a40;
+    margin: 0;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    width: 90%;
+    max-width: 1200px;
+}
+
+.menu-link {
+    text-decoration: none;
+    transition: transform 0.3s ease;
+}
+
+.menu-link:hover {
+    transform: scale(1.05);
+}
+
+.menu-card {
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    padding: 30px;
+    height: 100%;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.menu-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        to bottom right,
+        rgba(255,255,255,0.3),
+        rgba(255,255,255,0)
+    );
+    transform: rotate(30deg);
+    transition: all 0.3s ease;
+}
+
+.menu-card:hover::before {
+    transform: rotate(30deg) translate(20px, 20px);
+}
+
+.menu-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+.menu-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+}
+
+.menu-icon-wrapper {
+    font-size: 2rem;
+    opacity: 0.8;
+    transition: all 0.3s ease;
+}
+
+.menu-link:hover .menu-icon-wrapper {
+    transform: scale(1.2);
+    opacity: 1;
+}
+
+.menu-icon {
+    font-size: inherit;
+}
+
+/* Background colors */
+.bg-blue {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.bg-green {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.bg-purple {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+.bg-red {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .dashboard-title {
+        font-size: 2rem;
+    }
+}

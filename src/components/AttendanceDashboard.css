@@ -1,0 +1,133 @@
+/* Base Styles */
+.attendance-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .dashboard-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+  }
+  
+  /* Card Styles */
+  .card {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    border: none;
+  }
+  
+  .location-card {
+    background-color: #fff;
+  }
+  
+  .attendance-card {
+    background-color: #fff;
+  }
+  
+  .card-body {
+    padding: 20px;
+  }
+  
+  /* Location Section */
+  .location-info {
+    display: flex;
+    align-items: center;
+  }
+  
+  .location-icon {
+    color: #0d6efd;
+    margin-right: 10px;
+    width: 20px;
+    height: 20px;
+  }
+  
+  .location-text {
+    color: #666;
+    font-size: 1rem;
+  }
+  
+  .start-class-btn {
+    float: right;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 8px;
+  }
+  
+  /* Attendance Section */
+  .class-time {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .clock-icon {
+    color: #198754;
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+  }
+  
+  .time-text {
+    color: #555;
+    font-size: 0.95rem;
+  }
+  
+  .webcam-view {
+    width: 100%;
+    height: 200px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+  }
+  
+  .mark-attendance-btn {
+    width: 100%;
+    padding: 10px;
+    font-weight: 500;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .camera-icon {
+    margin-right: 8px;
+    width: 18px;
+    height: 18px;
+  }
+  
+  .attendance-success {
+    color: #198754;
+    font-weight: 600;
+    margin-top: 10px;
+    text-align: center;
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  /* Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .location-info {
+      margin-bottom: 15px;
+    }
+    
+    .start-class-btn {
+      float: none;
+      width: 100%;
+    }
+    
+    .attendance-container {
+      padding: 15px;
+    }
+  }
