@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FaUserGraduate, FaChalkboardTeacher, FaCalendarAlt, FaClipboardList } from "react-icons/fa";
+import { FaUserGraduate, FaChalkboardTeacher, FaCalendarAlt, FaClipboardList, FaUserCircle } from "react-icons/fa";
 import "./Dashboard.css";
 
 const Dashboard = () => {
@@ -28,6 +28,12 @@ const Dashboard = () => {
             icon: <FaCalendarAlt className="menu-icon" />, 
             path: "/timetable", 
             bgClass: "bg-red" 
+        },
+        { 
+            name: "Register Face", 
+            icon: <FaUserCircle className="menu-icon" />, 
+            path: "/face-register", 
+            bgClass: "bg-orange" 
         }
     ];
 

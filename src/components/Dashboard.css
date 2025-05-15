@@ -5,33 +5,36 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 40px 20px;
+    padding: 2rem;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .dashboard-header {
-    margin-bottom: 60px;
+    margin-bottom: 2rem;
     text-align: center;
 }
 
 .dashboard-title {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 700;
-    color: #343a40;
+    color: #333;
     margin: 0;
     text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
 }
 
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
     width: 90%;
     max-width: 1200px;
 }
 
 .menu-link {
     text-decoration: none;
+    color: inherit;
     transition: transform 0.3s ease;
 }
 
@@ -40,34 +43,20 @@
 }
 
 .menu-card {
+    background: white;
     border-radius: 10px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    padding: 30px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
     height: 100%;
-    color: white;
     position: relative;
     overflow: hidden;
-    transition: all 0.3s ease;
 }
 
-.menu-card::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        to bottom right,
-        rgba(255,255,255,0.3),
-        rgba(255,255,255,0)
-    );
-    transform: rotate(30deg);
-    transition: all 0.3s ease;
-}
-
-.menu-card:hover::before {
-    transform: rotate(30deg) translate(20px, 20px);
+.menu-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .menu-content {
@@ -79,42 +68,68 @@
 }
 
 .menu-title {
-    font-size: 1.5rem;
-    font-weight: 600;
+    font-size: 1.25rem;
     margin: 0;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    color: #333;
 }
 
 .menu-icon-wrapper {
     font-size: 2rem;
-    opacity: 0.8;
+    color: #666;
     transition: all 0.3s ease;
 }
 
 .menu-link:hover .menu-icon-wrapper {
     transform: scale(1.2);
-    opacity: 1;
+    color: #333;
 }
 
 .menu-icon {
-    font-size: inherit;
+    width: 2rem;
+    height: 2rem;
 }
 
 /* Background colors */
 .bg-blue {
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    background: linear-gradient(135deg, #4a90e2, #357abd);
+    color: white;
 }
 
 .bg-green {
-    background: linear-gradient(135deg, #10b981, #059669);
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: white;
 }
 
 .bg-purple {
-    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    color: white;
 }
 
 .bg-red {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+}
+
+.bg-orange {
+    background: linear-gradient(135deg, #f39c12, #d35400);
+    color: white;
+}
+
+/* Override text colors for colored backgrounds */
+.bg-blue .menu-title,
+.bg-green .menu-title,
+.bg-purple .menu-title,
+.bg-red .menu-title,
+.bg-orange .menu-title {
+    color: white;
+}
+
+.bg-blue .menu-icon,
+.bg-green .menu-icon,
+.bg-purple .menu-icon,
+.bg-red .menu-icon,
+.bg-orange .menu-icon {
+    color: rgba(255, 255, 255, 0.9);
 }
 
 /* Responsive adjustments */

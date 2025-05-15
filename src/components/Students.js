@@ -1,49 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import './Students.css';
-import { useSheet } from '../context/SheetContext';
+import axios from 'axios';
 
 function Students() {
-  const { sheetData = [], refreshSheetData, loading: sheetLoading, error: sheetError } = useSheet();
+  const [students, setStudents] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [classes, setClasses] = useState(['All Classes']);
   const [searchParams, setSearchParams] = useState({
     enrollment: '',
     name: '',
-    className: ''
+    className: 'All Classes'
   });
 
-  // Extract unique classes from sheet data
-  const allClasses = [...new Set(sheetData.slice(1).map(row => row[10]))].filter(Boolean);
+  // Fetch initial data on component mount
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  const handleSearch = () => {
-    setLoading(true);
-    setError(null);
-    
+  const fetchData = async (params = {}) => {
     try {
-      const studentsData = sheetData.slice(1); // Skip header row
-      
-      const filtered = studentsData.filter(row => {
-        const enrollmentMatch = !searchParams.enrollment || 
-          (row[1] && row[1].toString().includes(searchParams.enrollment.trim()));
-        
-        const nameMatch = !searchParams.name || 
-          (row[2] && row[2].toLowerCase().includes(searchParams.name.toLowerCase().trim()));
-        
-        const classMatch = !searchParams.className || 
-          (row[10] && row[10] === searchParams.className.trim());
-        
-        return enrollmentMatch && nameMatch && classMatch;
-      });
+      setLoading(true);
+      // Build query string from params
+      const queryParams = new URLSearchParams();
+      if (params.enrollment) queryParams.append('enrollment', params.enrollment);
+      if (params.name) queryParams.append('name', params.name);
+      if (params.className && params.className !== 'All Classes') {
+        queryParams.append('class', params.className);
+      }
 
-      setFilteredStudents(filtered);
+      const url = `http://localhost:3001/students${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const response = await axios.get(url);
       
-      if (filtered.length === 0) {
-        setError('No records found matching your criteria');
+      if (response.data.success) {
+        const allStudents = response.data.data;
+        setStudents(allStudents);
+        setFilteredStudents(allStudents);
+        
+        // Extract unique classes properly
+        const uniqueClasses = [...new Set(allStudents.map(student => student.class || student.batch))].filter(Boolean);
+        setClasses(['All Classes', ...uniqueClasses.sort()]);
+        
+        console.log('Total students:', allStudents.length);
+        console.log('Unique classes:', uniqueClasses);
+      } else {
+        throw new Error(response.data.message || 'Failed to fetch students');
       }
     } catch (err) {
-      console.error('Search error:', err);
-      setError(err.message);
+      console.error('Error fetching data:', err);
+      setError(err.response?.data?.error || err.message);
       setFilteredStudents([]);
     } finally {
       setLoading(false);
@@ -58,33 +64,27 @@ function Students() {
     }));
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
+  const handleSearch = () => {
+    fetchData(searchParams);
+  };
+
+  const handleRefresh = async () => {
+    // Reset search params and fetch all data
+    setSearchParams({
+      enrollment: '',
+      name: '',
+      className: 'All Classes'
+    });
+    fetchData();
   };
 
   const clearSearch = () => {
     setSearchParams({
       enrollment: '',
       name: '',
-      className: ''
+      className: 'All Classes'
     });
-    setFilteredStudents([]);
-    setError(null);
-  };
-
-  const handleRefresh = async () => {
-    setLoading(true);
-    try {
-      await refreshSheetData();
-      setError(null);
-      setFilteredStudents([]);
-    } catch (err) {
-      setError('Failed to refresh data from Google Sheet');
-    } finally {
-      setLoading(false);
-    }
+    fetchData();
   };
 
   return (
@@ -92,13 +92,13 @@ function Students() {
       <div className="app-container">
         <div className="card">
           <div className="card-header">
-            <h1>Student Records (Google Sheet Data)</h1>
+            <h1>Student Records</h1>
             <button 
               onClick={handleRefresh} 
               className="btn btn-secondary refresh-btn"
-              disabled={sheetLoading}
+              disabled={loading}
             >
-              {sheetLoading ? 'Refreshing...' : '↻ Refresh'}
+              {loading ? 'Refreshing...' : '↻ Refresh'}
             </button>
           </div>
           
@@ -111,7 +111,6 @@ function Students() {
                 placeholder="Enrollment No"
                 value={searchParams.enrollment}
                 onChange={handleInputChange}
-                onKeyPress={handleKeyPress}
               />
               
               <input
@@ -121,7 +120,6 @@ function Students() {
                 placeholder="Student Name"
                 value={searchParams.name}
                 onChange={handleInputChange}
-                onKeyPress={handleKeyPress}
               />
               
               <select
@@ -130,8 +128,7 @@ function Students() {
                 value={searchParams.className}
                 onChange={handleInputChange}
               >
-                <option value="">All Classes</option>
-                {allClasses.map((cls, index) => (
+                {classes.map((cls, index) => (
                   <option key={index} value={cls}>
                     {cls}
                   </option>
@@ -140,31 +137,31 @@ function Students() {
               
               <div className="action-buttons">
                 <button 
-                  onClick={handleSearch} 
-                  className="btn btn-primary search-btn"
-                  disabled={loading || sheetLoading}
+                  onClick={handleSearch}
+                  className="btn btn-primary"
+                  disabled={loading}
                 >
-                  {loading ? 'Searching...' : 'Search'}
+                  Search
                 </button>
                 <button 
                   onClick={clearSearch} 
                   className="btn btn-outline-secondary"
-                  disabled={loading || sheetLoading}
+                  disabled={loading}
                 >
                   Clear
                 </button>
               </div>
             </div>
 
-            {(error || sheetError) && (
+            {error && (
               <div className={`alert ${filteredStudents.length === 0 ? 'alert-danger' : 'alert-info'}`}>
-                {error || sheetError}
+                {error}
               </div>
             )}
             
-            {(loading || sheetLoading) && (
+            {loading && (
               <div className="alert alert-info">
-                Loading...
+                Loading student data...
               </div>
             )}
 
@@ -172,7 +169,7 @@ function Students() {
               <>
                 <div className="results-summary">
                   <span className="badge badge-primary">
-                    Found {filteredStudents.length} record{filteredStudents.length !== 1 ? 's' : ''}
+                    Showing {filteredStudents.length} of {students.length} students
                   </span>
                 </div>
 
@@ -180,13 +177,16 @@ function Students() {
                   <table className="table table-striped">
                     <thead>
                       <tr>
-                        <th>S.No</th>
-                        <th>Enrollment</th>
+                        <th>ID</th>
+                        <th>Enrollment No</th>
                         <th>Name</th>
                         <th>Branch</th>
-                        <th>Type</th>
+                        <th>Hosteller/Commuter</th>
                         <th>Semester</th>
                         <th>Gender</th>
+                        <th>Admission Type</th>
+                        <th>Student Phone</th>
+                        <th>Parent Phone</th>
                         <th>GNU Email</th>
                         <th>Personal Email</th>
                         <th>Batch</th>
@@ -197,26 +197,19 @@ function Students() {
                       {filteredStudents.map((student, index) => (
                         <tr key={index}>
                           <td>{index + 1}</td>
-                          <td>{student[1] || '-'}</td>
-                          <td className="student-name">
-                            {student[6] === 'Female' ? '♀' : '♂'} {student[2] || '-'}
-                          </td>
-                          <td>{student[3] || '-'}</td>
-                          <td>{student[4] || '-'}</td>
-                          <td>{student[5] || '-'}</td>
-                          <td>{student[6] || '-'}</td>
-                          <td>
-                            {student[7] ? (
-                              <a href={`mailto:${student[7]}`}>{student[7]}</a>
-                            ) : '-'}
-                          </td>
-                          <td>
-                            {student[8] ? (
-                              <a href={`mailto:${student[8]}`}>{student[8]}</a>
-                            ) : '-'}
-                          </td>
-                          <td>{student[9] || '-'}</td>
-                          <td>{student[10] || '-'}</td>
+                          <td>{student.enrollment_no || '-'}</td>
+                          <td className="student-name">{student.name || '-'}</td>
+                          <td>{student.branch || '-'}</td>
+                          <td>{student.hosteller_commuter || '-'}</td>
+                          <td>{student.semester || '-'}</td>
+                          <td>{student.gender || '-'}</td>
+                          <td>{student.admission_type || '-'}</td>
+                          <td>{student.student_phone || '-'}</td>
+                          <td>{student.parent_phone || '-'}</td>
+                          <td>{student.gnu_email || '-'}</td>
+                          <td>{student.personal_email || '-'}</td>
+                          <td>{student.batch || '-'}</td>
+                          <td>{student.class || '-'}</td>
                         </tr>
                       ))}
                     </tbody>

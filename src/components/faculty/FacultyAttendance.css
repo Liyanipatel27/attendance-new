@@ -1,0 +1,168 @@
+.faculty-attendance-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .current-info {
+    background-color: #f0f0f0;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+  }
+  
+  .faculty-selector {
+    margin-bottom: 20px;
+  }
+  
+  .faculty-selector label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  
+  .faculty-selector select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  
+  .current-slot-section {
+    margin-top: 20px;
+  }
+  
+  .slot-card {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+  
+  .slot-card p {
+    margin: 8px 0;
+  }
+  
+  .timetable-section {
+    margin: 20px 0;
+  }
+  
+  .timetable-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 0.9em;
+  }
+  
+  .timetable-table th, .timetable-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .timetable-table th {
+    background-color: #f2f2f2;
+    position: sticky;
+    top: 0;
+  }
+  
+  .current-slot {
+    background-color: #e6f7ff;
+    font-weight: bold;
+  }
+  
+  .live-indicator {
+    color: #ff0000;
+    font-weight: bold;
+    margin: 15px 0;
+    animation: blink 1s infinite;
+  }
+  
+  .start-attendance-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 15px;
+    transition: background-color 0.2s;
+  }
+  
+  .start-attendance-btn:hover {
+    background-color: #45a049;
+  }
+  
+  .end-attendance-btn {
+    background-color: #dc3545;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 15px;
+    transition: background-color 0.2s;
+  }
+  
+  .end-attendance-btn:hover {
+    background-color: #c82333;
+  }
+  
+  .status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .status-badge.present {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  .status-badge.absent {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  .status-badge.pending {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+  
+  @keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+  }
+  
+  /* Responsive table */
+  @media screen and (max-width: 600px) {
+    .faculty-attendance-container {
+      padding: 15px;
+    }
+    
+    .slot-card {
+      padding: 15px;
+    }
+    
+    .start-attendance-btn {
+      padding: 10px 20px;
+    }
+    
+    .timetable-table {
+      font-size: 0.8em;
+    }
+    .timetable-table th, 
+    .timetable-table td {
+      padding: 4px;
+    }
+  }

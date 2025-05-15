@@ -1,0 +1,182 @@
+
+
+
+database:college
+
+students...
+
+
+CREATE TABLE students (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  enrollment_no VARCHAR(20) NOT NULL,
+  name VARCHAR(100) NOT NULL,
+  branch VARCHAR(10) NOT NULL,
+  hosteller_commuter VARCHAR(20) NOT NULL,
+  semester VARCHAR(10) NOT NULL,
+  gender VARCHAR(10) NOT NULL,
+  admission_type VARCHAR(20) NOT NULL,
+  student_phone VARCHAR(15) NOT NULL,
+  parent_phone VARCHAR(15) NOT NULL,
+  gnu_email VARCHAR(100) NOT NULL,
+  personal_email VARCHAR(100) NOT NULL,
+  batch VARCHAR(20),
+  class VARCHAR(20),
+  UNIQUE KEY (enrollment_no),
+  UNIQUE KEY (gnu_email)
+);
+
+timetable
+
+
+CREATE TABLE timetable (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  class_id INT NOT NULL,
+  batch VARCHAR(50),
+  day VARCHAR(10) NOT NULL,
+  time VARCHAR(20) NOT NULL,
+  subject VARCHAR(50) NOT NULL,
+  faculty VARCHAR(50) NOT NULL,
+  room VARCHAR(20) NOT NULL,
+  INDEX (class_id),
+  INDEX (day),
+  INDEX (subject)
+);
+
+
+
+
+query
+
+
+
+
+
+
+
+INSERT INTO timetable (class_id, batch, day, time, subject, faculty, room) VALUES  
+(6, '-', 'Monday', '8:30 - 9:15', '2CEIT6PE7(EH)', 'PMS', '1NB003'),
+(6, '-', 'Monday', '9:15 - 10:00', '-', '-', '-'),
+(6, '-', 'Monday', '10:00 - 10:10', 'Short Break', '-', '-'),
+(6, '6-CEA1', 'Monday', '10:10 - 11:40', '2CEIT603(CC)', 'HHP', '1NB106B'),
+(6, '6-CEA2', 'Monday', '10:10 - 11:40', '2CEIT601(TOC)', 'CNP', '1NB016'),
+(6, '6-CEA3', 'Monday', '10:10 - 11:40', '-', '-', '-'),
+(6, '-', 'Monday', '11:40 - 12:30', 'BREAK', '-', '-'),
+(6, '-', 'Monday', '12:30 - 1:20', '2CEIT601(TOC)', 'ADS', '1NB109'),
+(6, '-', 'Monday', '1:20 - 2:10', '-', '-', '-');
+
+INSERT INTO timetable (class_id, batch, day, time, subject, faculty, room) VALUES 
+(6, '-', 'Tuesday', '8:30 - 9:15', '2CEIT603(CC)', 'HHP', '1NB102'),
+(6, '-', 'Tuesday', '9:15 - 10:00', '2CEIT606(AI)', 'HMS', '1NB102'),
+(6, '-', 'Tuesday', '10:00 - 10:10', 'Short Break', '-', '-'),
+(6, '6-CEA1', 'Tuesday', '10:10 - 11:40', '2CEIT601(TOC)', 'ADS', '1NB011'),
+(6, '6-CEA2', 'Tuesday', '10:10 - 11:40', '-', '-', '-'),
+(6, '6-CEA3', 'Tuesday', '10:10 - 11:40', '2CEIT6PE10(BCT)', 'NPP', '1NB012'),
+(6, '-', 'Tuesday', '11:40 - 12:30', 'BREAK', '-', '-'),
+(6, '6-CEA1', 'Tuesday', '12:30 - 2:10', '2CEIT605(CP-2)', '-', '1NB004B'),
+(6, '6-CEA2', 'Tuesday', '12:30 - 2:10', '2CEIT605(CP-2)', '-', '1NB005B'),
+(6, '6-CEA3', 'Tuesday', '12:30 - 2:10', '2CEIT605(CP-2)', '-', '1NB104A');
+
+
+INSERT INTO timetable (class_id, batch, day, time, subject, faculty, room) VALUES 
+(6, '-', 'Wednesday', '8:30 - 9:15', '2CEIT606(AI)', 'HMS', '1NB102'),
+(6, '-', 'Wednesday', '9:15 - 10:00', '2CEIT601(TOC)', 'ADS', '1NB102'),
+(6, '-', 'Wednesday', '10:00 - 10:10', 'Short Break', '-', '-'),
+(6, '6-CEA1', 'Wednesday', '10:10 - 11:40', '2CEIT606(AI)', 'HMS', '1NB004A'),
+(6, '6-CEA2', 'Wednesday', '10:10 - 11:40', '2CEIT6PE10(BCT)', 'NPP', '1NB012'),
+(6, '6-CEA3', 'Wednesday', '10:10 - 11:40', '2CEIT603(CC)', 'HHP', '1NB106C'),
+(6, '-', 'Wednesday', '11:40 - 12:30', 'BREAK', '-', '-'),
+(6, '-', 'Wednesday', '12:30 - 1:20', '2CEIT6PE7(EH)', 'PMS', '1NB103'),
+(6, '-', 'Wednesday', '1:20 - 2:10', '2CEIT603(CC)', 'HHP', '1NB103');
+
+
+
+
+faculty
+
+
+CREATE TABLE faculty (
+  sr_no INT AUTO_INCREMENT PRIMARY KEY,
+  short_name VARCHAR(10) NOT NULL,
+  employee_id BIGINT NOT NULL,
+  full_name VARCHAR(100) NOT NULL,
+  email_id VARCHAR(100) NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  salt VARCHAR(100) NOT NULL,
+  department_id INT,
+  designation VARCHAR(50),
+  is_active TINYINT(1) DEFAULT 1,
+  UNIQUE KEY (employee_id),
+  UNIQUE KEY (email_id),
+  INDEX (department_id),
+  INDEX (is_active)
+);
+
+
+
+
+classes
+
+
+
+CREATE TABLE classes (
+  class_id INT AUTO_INCREMENT PRIMARY KEY,
+  course_code VARCHAR(20),
+  class_name VARCHAR(20) NOT NULL UNIQUE,
+  schedule VARCHAR(100),
+  room_number VARCHAR(20),
+  faculty_sr_no INT,
+  batch VARCHAR(50),
+  semester INT,
+  INDEX (faculty_sr_no),
+  INDEX (course_code),
+  INDEX (semester)
+);
+
+
+
+CREATE TABLE attendance_records (
+  record_id INT AUTO_INCREMENT PRIMARY KEY,
+  session_id INT NOT NULL,
+  student_id INT NOT NULL,
+  status ENUM('Present', 'Absent', 'Late') DEFAULT 'Present',
+  marked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX (session_id),
+  INDEX (student_id),
+  INDEX (marked_at),
+  UNIQUE KEY (session_id, student_id)  -- Prevent duplicate entries
+);
+
+
+
+
+
+CREATE TABLE IF NOT EXISTS attendance_sessions (
+    session_id INT PRIMARY KEY AUTO_INCREMENT,
+    faculty_sr_no INT NOT NULL,
+    class_id INT NOT NULL,
+    location VARCHAR(255) NOT NULL,
+    start_time DATETIME NOT NULL,
+    end_time DATETIME,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (faculty_sr_no) REFERENCES faculty(sr_no),
+    FOREIGN KEY (class_id) REFERENCES classes(class_id)
+) ENGINE=InnoDB;
+
+
+
+/////////////////////////////////////////
+
+add csv file :
+
+LOAD DATA INFILE 'C:/download/data.csv' 
+INTO TABLE students
+FIELDS TERMINATED BY ',' 
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+
+
+
+

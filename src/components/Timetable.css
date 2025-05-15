@@ -1,101 +1,171 @@
 .timetable-container {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    max-width: 1000px;
-    margin: 20px auto;
     padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.controls {
-    display: flex;
-    justify-content: space-between;
+.timetable-header {
     margin-bottom: 20px;
-    flex-wrap: wrap;
-    gap: 15px;
 }
 
-.class-selector select {
-    padding: 8px 15px;
-    border-radius: 5px;
+.timetable-title {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.timetable-controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.class-select {
+    padding: 8px 12px;
     border: 1px solid #ddd;
-    font-size: 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    min-width: 120px;
 }
 
 .day-buttons {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
-.day-buttons button {
-    padding: 8px 15px;
-    background-color: #f0f0f0;
+.timetable-day-btn {
+    padding: 8px 16px;
     border: 1px solid #ddd;
-    border-radius: 5px;
+    border-radius: 4px;
+    background: #fff;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.2s;
 }
 
-.day-buttons button.active {
-    background-color: #4CAF50;
+.timetable-day-btn:hover {
+    background: #f5f5f5;
+}
+
+.timetable-day-btn.selected {
+    background: #4CAF50;
     color: white;
     border-color: #4CAF50;
 }
 
-.current-lecture-notice {
-    padding: 15px;
-    background-color: #e8f5e9;
-    border-left: 5px solid #4CAF50;
-    margin-bottom: 20px;
-    border-radius: 5px;
-    font-weight: bold;
+.timetable-refresh-btn {
+    padding: 8px 16px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.timetable-refresh-btn:hover {
+    background: #45a049;
+}
+
+.timetable-table-container {
+    overflow-x: auto;
+    margin-top: 20px;
 }
 
 .timetable-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    min-width: 600px;
 }
 
-.timetable-table th {
-    background-color: #4CAF50;
-    color: white;
+.timetable-table th,
+.timetable-table td {
+    border: 1px solid #ddd;
     padding: 12px;
     text-align: left;
 }
 
-.timetable-table td {
-    padding: 10px 12px;
-    border-bottom: 1px solid #ddd;
+.timetable-table th {
+    background: #f5f5f5;
+    font-weight: 600;
 }
 
-.timetable-table tr.current-lecture {
-    background-color: #e8f5e9;
-    font-weight: bold;
+.time-col {
+    width: 150px;
+    font-weight: 500;
 }
 
-.timetable-table tr:hover {
-    background-color: #f5f5f5;
+.timetable-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
-.highlight {
-    animation: highlight 2s infinite;
+.class-details {
+    padding: 4px 0;
 }
 
-@keyframes highlight {
-    0% { background-color: #e8f5e9; }
-    50% { background-color: #c8e6c9; }
-    100% { background-color: #e8f5e9; }
+.subject {
+    font-weight: 500;
+    color: #333;
+}
+
+.faculty {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.room {
+    color: #888;
+    font-size: 0.9em;
+}
+
+.empty-slot {
+    color: #999;
+    font-style: italic;
+}
+
+.break-slot {
+    color: #e67e22;
+    font-weight: 500;
+}
+
+.current-slot {
+    background-color: #fffde7;
+    box-shadow: 0 0 0 2px #ffc107;
+}
+
+.loading,
+.error,
+.no-timetable {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+}
+
+.error {
+    color: #d32f2f;
 }
 
 @media (max-width: 768px) {
-    .controls {
+    .timetable-controls {
         flex-direction: column;
+        align-items: stretch;
     }
     
     .day-buttons {
         justify-content: center;
+    }
+    
+    .timetable-day-btn {
+        padding: 6px 12px;
+        font-size: 14px;
+    }
+    
+    .timetable-table th,
+    .timetable-table td {
+        padding: 8px;
     }
 }

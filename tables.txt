@@ -1,0 +1,106 @@
+timetable table:
+
+database name is college;
+
+
+CREATE TABLE timetable (
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    class_id INT NOT NULL,
+    batch VARCHAR(50),
+    day VARCHAR(10) NOT NULL,
+    time VARCHAR(20) NOT NULL,
+    subject VARCHAR(50) NOT NULL,
+    faculty VARCHAR(50) NOT NULL,
+    room VARCHAR(20) NOT NULL
+);
+
+
+students table:
+
+-- Create the students table if it doesn't exist
+CREATE TABLE IF NOT EXISTS students (
+    sr INT PRIMARY KEY AUTO_INCREMENT,  -- Assuming sr is a unique identifier
+    enrollment_no VARCHAR(20) NOT NULL UNIQUE,
+    name_of_student VARCHAR(100) NOT NULL,
+    branch VARCHAR(10) NOT NULL,
+    hosteller_commuters VARCHAR(20),
+    semester VARCHAR(10) NOT NULL,
+    gender VARCHAR(10),
+    regular_lateral VARCHAR(20),
+    student_phone_no VARCHAR(15) UNIQUE,
+    parents_phone_no VARCHAR(15),
+    student_gnu_mail_id VARCHAR(100) UNIQUE,
+    student_personal_mail_id VARCHAR(100),
+    batch VARCHAR(20),
+    class VARCHAR(20)
+);
+
+import csv file:
+
+LOAD DATA INFILE 'C:/download/data.csv' 
+INTO TABLE students
+FIELDS TERMINATED BY ',' 
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+
+faculty table:
+
+
+CREATE TABLE faculty (
+    sr_no INT AUTO_INCREMENT PRIMARY KEY,
+    short_name VARCHAR(10) NOT NULL,
+    employee_id BIGINT NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
+    email_id VARCHAR(100) NOT NULL
+);
+
+
+
+for faculty data1.csv file :
+
+
+
+
+mysqlsh -u root -p;
+ USE college;
+  \sql
+ 
+  host:33060+ ssl  college  SQL > SHOW VARIABLES LIKE "secure_file_priv";                                     SHOW VARIABLES LIKE "secure_file_priv";
++------------------+------------------------------------------------+
+| Variable_name    | Value                                          |
++------------------+------------------------------------------------+
+| secure_file_priv | C:\ProgramData\MySQL\MySQL Server 8.0\Uploads\ |
+
+
+
+is path me jake upload folder ma data1.csv paste karvani..
+SET GLOBAL local_infile = 1;
+
+LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/data1.csv'
+INTO TABLE faculty
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS
+(@sr_no, @short_name, @employee_id, @full_name, @email_id)
+SET 
+    sr_no = NULLIF(@sr_no, ''),
+    short_name = NULLIF(@short_name, ''),
+    employee_id = IF(@employee_id = '' OR @employee_id = '-', 0, @employee_id),  -- Default `0` for empty employee_id
+    full_name = NULLIF(@full_name, ''),
+    email_id = IF(@email_id = '' OR @email_id IS NULL, 'unknown@example.com', @email_id); -- Default email
+
+
+
+
+CREATE TABLE IF NOT EXISTS student_faces (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  student_id VARCHAR(50) NOT NULL UNIQUE,
+  image_path VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+

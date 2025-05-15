@@ -1,250 +1,283 @@
 import React, { useState, useEffect } from "react";
-import './Timetable.css';
+import axios from "axios";
+import "./Timetable.css";
 
 const Timetable = () => {
-    const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const [timetable, setTimetable] = useState([]);
-    const [selectedClass, setSelectedClass] = useState("");
-    const [selectedDay, setSelectedDay] = useState("");
-    const [currentLecture, setCurrentLecture] = useState(null);
-    const [currentTime, setCurrentTime] = useState(new Date());
-    const [classes, setClasses] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
+  const [selectedClass, setSelectedClass] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [sheetData, setSheetData] = useState([]);
+  const [selectedDay, setSelectedDay] = useState("");
+  const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
-    // Fetch classes on component mount
-    useEffect(() => {
-        const fetchClasses = async () => {
-            try {
-                setIsLoading(true);
-                const response = await fetch('http://localhost:3001/classes');
-                if (!response.ok) throw new Error('Failed to fetch classes');
-                
-                const data = await response.json();
-                setClasses(data.classes || data); // Handle both formats
-                
-                // Auto-select first class if available
-                if (data.classes?.length > 0 || data.length > 0) {
-                    setSelectedClass(data.classes?.[0]?.class_id || data[0]?.id);
-                }
-            } catch (err) {
-                setError("कक्षाएं लोड करने में समस्या");
-                console.error("Error fetching classes:", err);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        
-        fetchClasses();
-    }, []);
+  // Debug: Log sheet data changes
+  useEffect(() => {
+    if (sheetData && sheetData.length > 0) {
+      console.log('Headers:', sheetData[0]);
+      console.log('First data row:', sheetData[1]);
+    }
+  }, [sheetData]);
 
-    // Set initial day to current day
-    useEffect(() => {
-        const today = new Date().toLocaleString('en-us', { weekday: 'long' });
-        setSelectedDay(daysOfWeek.includes(today) ? today : "Monday");
-    }, []);
+  // Update current time every minute
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentDateTime(new Date());
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
 
-    // Update current time every minute
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentTime(new Date());
-        }, 60000);
-        return () => clearInterval(timer);
-    }, []);
+  // Class to GID mapping
+  const classGidMap = {
+    "6IT-A": "222099765",
+    "6IT-B": "792605536",
+    "6CE-A": "521984538",
+    "6IT-E": "662323215",
+    "6CE-E": "1522823302",
+    "6IT-C": "804234950",
+    // Add more classes and their GIDs here if needed
+  };
 
-    // Fetch timetable when class or day changes
+  // Faculty to Classes mapping
+  const facultyClassMap = {
+    "PROF. CHIRAG GAMI (CCG)": ["6IT-A", "6IT-B", "6CE-A"],
+    "PROF. JOHN DOE": ["6IT-C", "6IT-E"],
+    "PROF. JANE SMITH": ["6CE-E", "6IT-B"],
+    // Add more faculty members and their classes
+  };
+
+  // Get today's day name
+  const getTodayDay = () => {
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    return days[currentDateTime.getDay()];
+  };
+
+  useEffect(() => {
+    const classNames = Object.keys(classGidMap);
+    if (classNames.length > 0) {
+      setSelectedClass(classNames[0]);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (selectedClass) {
+      fetchSheetData(selectedClass);
+    }
+  }, [selectedClass]);
+
+  useEffect(() => {
+    if (sheetData && sheetData.length > 1) {
+      const today = getTodayDay();
+      const availableDays = [...new Set(sheetData.slice(1).map(row => row[0]))].filter(Boolean);
+      if (availableDays.includes(today)) {
+        setSelectedDay(today);
+      } else {
+        setSelectedDay(sheetData[1][0]);
+      }
+    }
+  }, [sheetData]);
+
+  const fetchSheetData = async (className) => {
+    try {
+      setLoading(true);
+      const gid = classGidMap[className];
+      if (!gid) {
+        throw new Error(`No GID found for class ${className}`);
+      }
+      const response = await axios.get(`http://localhost:3001/api/sheet-data?gid=${gid}&range=A1:N20`);
+      if (response.data.success) {
+        setSheetData(response.data.data);
+        setError(null);
+      } else {
+        throw new Error(response.data.error || 'Failed to fetch timetable data');
+      }
+    } catch (err) {
+      console.error('Error fetching sheet data:', err);
+      setError(err.message);
+      setSheetData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getSelectedDayRows = () => {
+    if (!selectedDay || !sheetData || sheetData.length < 2) return [];
     
-    useEffect(() => {
-        if (!selectedClass || !selectedDay) return;
+    // Find all rows for the selected day
+    return sheetData.filter((row, index) => {
+      // Skip header row (index 0)
+      if (index === 0) return false;
       
-        const fetchTimetable = async () => {
-          try {
-            setIsLoading(true);
-            const response = await fetch(
-              `http://localhost:3001/timetable/${selectedClass}/${selectedDay}?_=${new Date().getTime()}`
-            );
-            
-            if (!response.ok) throw new Error('Network response failed');
-            
-            const data = await response.json();
-            
-            // Remove duplicates
-            const uniqueTimetable = [...new Map((data.timetable || []).map(item => 
-                [item.time + item.subject + item.batch, item])
-            ).values()];
-            
-            // Advanced sorting
-            const sortedTimetable = uniqueTimetable.sort((a, b) => {
-                const parseTime = (timeStr) => {
-                    if (!timeStr || !timeStr.includes(" - ")) return 0;
-                    
-                    const [startTime] = timeStr.split(" - ");
-                    const hasPM = timeStr.toLowerCase().includes('pm');
-                    const hasAM = timeStr.toLowerCase().includes('am');
-                    
-                    let [hours, minutes] = startTime.split(":").map(Number);
-                    
-                    if (hasPM && hours < 12) hours += 12;
-                    if (hasAM && hours === 12) hours = 0;
-                    
-                    // Smart detection for afternoon times without AM/PM
-                    if (!hasAM && !hasPM && hours < 8 && 
-                        !timeStr.includes('Morning') && 
-                        !timeStr.includes('Breakfast')) {
-                        hours += 12;
-                    }
-                    
-                    return hours * 60 + minutes;
-                };
-                
-                return parseTime(a.time) - parseTime(b.time);
-            });
-            
-            setTimetable(sortedTimetable);
-          } catch (err) {
-            setError("टाइमटेबल लोड करने में समस्या");
-            console.error("Error fetching timetable:", err);
-          } finally {
-            setIsLoading(false);
-          }
-        };
-        
-        fetchTimetable();
-    }, [selectedClass, selectedDay]);
+      // Check if the first column matches the selected day
+      return row[0] === selectedDay;
+    });
+  };
 
-    // Check current lecture
-    useEffect(() => {
-        const now = currentTime;
-        const currentHours = now.getHours();
-        const currentMinutes = now.getMinutes();
-        
-        const current = timetable.find(lecture => {
-            if (!lecture?.time) return false;
-            
-            try {
-                const [startTime, endTime] = lecture.time.split(" - ");
-                let [startH, startM] = startTime.split(":").map(Number);
-                let [endH, endM] = endTime.split(":").map(Number);
-                
-                // Handle 12-hour format if present
-                if (lecture.time.includes('PM') && startH < 12) startH += 12;
-                if (lecture.time.includes('AM') && startH === 12) startH = 0;
-                
-                const lectureStart = startH * 60 + startM;
-                const lectureEnd = endH * 60 + endM;
-                const currentTotal = currentHours * 60 + currentMinutes;
-                
-                return currentTotal >= lectureStart && currentTotal < lectureEnd;
-            } catch (e) {
-                console.warn("Error parsing lecture time:", lecture.time);
-                return false;
-            }
-        });
-        
-        setCurrentLecture(current || null);
-    }, [timetable, currentTime]);
-
-    if (isLoading && !timetable.length) {
-        return <div className="loading">Loading....</div>;
+  const formatCellContent = (cell) => {
+    if (!cell || cell === 'Break' || cell === 'No Teaching Load') {
+      return <div className="empty-slot">{cell}</div>;
     }
 
-    if (error) {
-        return (
-            <div className="error">
-                <h3>{error}</h3>
-                <button onClick={() => window.location.reload()}>Please Try Again.</button>
-            </div>
-        );
+    // Split by newline and clean up each part
+    const parts = cell.split('\n')
+      .map(part => part.trim())
+      .filter(part => part.length > 0);
+
+    if (parts.length === 0) return null;
+
+    return (
+      <div className="timetable-slot">
+        <div className="subject-code">{parts[0]}</div>
+        {parts.length > 1 && <div className="class-group">{parts[1]}</div>}
+        {parts.length > 2 && <div className="faculty">{parts[2]}</div>}
+        {parts.length > 3 && <div className="room">{parts[3]}</div>}
+      </div>
+    );
+  };
+
+  const getCurrentSlotIndex = () => {
+    if (!sheetData || sheetData.length < 2 || !selectedDay) return -1;
+    
+    const now = new Date();
+    const currentHours = now.getHours();
+    const currentMinutes = now.getMinutes();
+    const totalMinutes = currentHours * 60 + currentMinutes;
+
+    const headers = sheetData[0];
+    
+    for (let i = 1; i < headers.length; i++) {
+      const timeRange = headers[i];
+      if (!timeRange) continue;
+      
+      const [startTime, endTime] = timeRange.split(' to ');
+      if (!startTime || !endTime) continue;
+      
+      const parseTime = (timeStr) => {
+        const [time, period] = timeStr.trim().split(' ');
+        const [hours, minutes] = time.split(':').map(Number);
+        
+        let total = hours * 60 + minutes;
+        if (period === 'PM' && hours !== 12) total += 12 * 60;
+        if (period === 'AM' && hours === 12) total -= 12 * 60;
+        
+        return total;
+      };
+      
+      const startMinutes = parseTime(startTime);
+      const endMinutes = parseTime(endTime);
+      
+      if (totalMinutes >= startMinutes && totalMinutes < endMinutes) {
+        return i;
+      }
+    }
+    
+    return -1;
+  };
+
+  const renderDayButtons = () => (
+    <div className="timetable-day-buttons">
+      {days.map(day => (
+        <button
+          key={day}
+          onClick={() => setSelectedDay(day)}
+          className={`timetable-day-btn ${selectedDay === day ? 'selected' : ''} ${day === getTodayDay() ? 'today' : ''}`}
+        >
+          {day}
+        </button>
+      ))}
+    </div>
+  );
+
+  const renderTable = () => {
+    if (!sheetData || sheetData.length < 2) {
+      return <div className="no-data">No timetable data available</div>;
+    }
+
+    const headers = sheetData[0];
+    const dayRows = getSelectedDayRows();
+    const currentSlotIdx = getCurrentSlotIndex();
+
+    if (dayRows.length === 0) {
+      return <div className="no-data">No classes scheduled for {selectedDay}</div>;
     }
 
     return (
-        <div className="timetable-container">
-            <h2>📅Class Timetable</h2>
-            <p>⏰ currentTime: {currentTime.toLocaleTimeString()}</p>
-            
-            <div className="controls">
-                <div className="class-selector">
-                    <label>Class: </label>
-                    <select 
-                        value={selectedClass}
-                        onChange={(e) => setSelectedClass(e.target.value)}
-                        disabled={isLoading}
-                    >
-                        {classes.map(cls => (
-                            <option key={cls.class_id || cls.id} value={cls.class_id || cls.id}>
-                                {cls.class_name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="day-buttons">
-                    {daysOfWeek.map(day => (
-                        <button
-                            key={day}
-                            onClick={() => setSelectedDay(day)}
-                            className={selectedDay === day ? "active" : ""}
-                            disabled={isLoading}
-                        >
-                            {day}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            {currentLecture ? (
-                <div className="current-lecture-notice highlight">
-                    🎯 Current Class: {currentLecture.subject} 
-                    {currentLecture.faculty !== 'N/A' && ` (${currentLecture.faculty})`}
-                    {currentLecture.room !== 'N/A' && ` - Class ${currentLecture.room}`}
-                </div>
-            ) : (
-                <div className="no-lecture">
-                    ⏳No Current Lecture available.
-                </div>
-            )}
-
-            <h3>{selectedDay} </h3>
-            
-            {timetable.length > 0 ? (
-                <div className="table-wrapper">
-                    <table className="timetable-table">
-                        <thead>
-                            <tr>
-                                <th>Time </th>
-                                <th>Subject</th>
-                                <th>Batch</th>
-                                <th>Faculty</th>
-                                <th>Class</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {timetable.map((lecture) => (
-                                <tr 
-                                    key={lecture.id}
-                                    className={
-                                        currentLecture?.id === lecture.id ? 
-                                        "current-lecture" : ""
-                                    }
-                                >
-                                    <td>{lecture.time}</td>
-                                    <td>{lecture.subject || '-'}</td>
-                                    <td>{lecture.batch || 'All'}</td>
-                                    <td>{lecture.faculty || 'N/A'}</td>
-                                    <td>{lecture.room || 'N/A'}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            ) : (
-                <div className="no-timetable">
-                    <p>No Class Available for this Day.</p>
-                    <small>Or Data id Not Available.</small>
-                </div>
-            )}
-        </div>
+      <div className="timetable-wrapper">
+        <table className="timetable">
+          <thead>
+            <tr>
+              {headers.map((header, index) => (
+                <th key={index}>{header}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {dayRows.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {row.map((cell, cellIndex) => (
+                  <td 
+                    key={cellIndex}
+                    className={cellIndex === currentSlotIdx ? 'current-slot' : ''}
+                  >
+                    {formatCellContent(cell)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     );
+  };
+
+  const handleRefresh = async () => {
+    if (selectedClass) {
+      await fetchSheetData(selectedClass);
+    }
+  };
+
+  const days = sheetData.length > 1 ? [...new Set(sheetData.slice(1).map(row => row[0]))].filter(Boolean) : [];
+
+  if (loading) return <div className="loading">Loading timetable data...</div>;
+  if (error) return <div className="error">{error}</div>;
+
+  return (
+    <div className="timetable-container">
+      <div className="timetable-header">
+        <div>
+          <div className="timetable-title">Class Timetable</div>
+          <div className="timetable-meta">
+            {currentDateTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} | 
+            <span style={{marginLeft: 8}}>{currentDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+          </div>
+        </div>
+        <button className="timetable-refresh-btn" onClick={handleRefresh} disabled={loading}>
+          {loading ? 'Refreshing...' : '↻ Refresh'}
+        </button>
+      </div>
+
+      <div className="controls">
+        <div className="class-selector">
+          <label htmlFor="class-select">Select Class:</label>
+          <select
+            id="class-select"
+            value={selectedClass}
+            onChange={(e) => setSelectedClass(e.target.value)}
+            disabled={loading}
+            className="class-select"
+          >
+            {Object.keys(classGidMap).map(className => (
+              <option key={className} value={className}>
+                {className}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {renderDayButtons()}
+      {renderTable()}
+    </div>
+  );
 };
 
 export default Timetable;

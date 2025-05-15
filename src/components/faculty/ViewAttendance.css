@@ -1,0 +1,102 @@
+.view-attendance-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .view-attendance-container h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+  }
+  
+  .date-filter {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .date-filter label {
+    font-weight: 600;
+    color: #444;
+  }
+  
+  .date-input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  
+  .attendance-table-container {
+    overflow-x: auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .attendance-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+  }
+  
+  .attendance-table th,
+  .attendance-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .attendance-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #444;
+  }
+  
+  .attendance-table tr:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .status-badge.present {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  .status-badge.absent {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  .error-message {
+    color: #dc3545;
+    text-align: center;
+    padding: 20px;
+    background-color: #f8d7da;
+    border-radius: 4px;
+    margin: 20px 0;
+  }
+  
+  @media (max-width: 768px) {
+    .view-attendance-container {
+      padding: 15px;
+    }
+  
+    .date-filter {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .date-input {
+      width: 100%;
+    }
+  }
